@@ -1,3 +1,5 @@
+"use client"
+
 import Avatar from './avatar'
 import { useCallback, useEffect, useState } from 'react'
 import { Database } from '@/types/supabase'
