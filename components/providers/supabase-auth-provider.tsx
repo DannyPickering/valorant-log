@@ -1,7 +1,7 @@
 "use client";
 
 import { Profile } from "@/types/collections";
-import { Session, User } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSupabase } from "./supabase-provider";
@@ -36,22 +36,24 @@ export default function SupabaseAuthProvider({
 
   // Get USER
   const getUser = async () => {
-    try {
-      const { data: user, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", serverSession?.user?.id)
-        .single();
+    if (serverSession?.user?.id) {
+      try {
+        const { data: user, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", serverSession?.user?.id)
+          .single();
 
-      if (error) {
+        if (error) {
+          setError(error);
+        } else {
+          setUser(user as Profile);
+        }
+      } catch (error) {
         setError(error);
-      } else {
-        setUser(user as Profile);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      setError(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

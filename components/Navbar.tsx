@@ -28,7 +28,7 @@ export default function Navbar() {
     <header className="flex justify-between py-4 px-14 bg-primary text-primary-foreground items-center">
       <div>Valorant Tracker</div>
 
-      {user ? (
+      {user != null ? (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger>
             <Avatar>
