@@ -17,22 +17,37 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 
-async function handleLoginProvider(provider: Provider) {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: provider,
-    options: {
-      redirectTo: 'http://localhost:3000/dashboard',
-    },
-  })
-}
 
 export default function Navbar({ user }: { user: User | null }) {
   console.log(user);
   const router = useRouter();
 
+  async function handleLoginProvider(provider: Provider) {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        redirectTo: 'http://localhost:3000/dashboard',
+      },
+    })
+  }
+
   const handleItemClick = (route: string) => {
     router.push(route);
   }
+  async function handleSignOut() {
+    const { error } = await supabase.auth.signOut()
+  }
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      router.push('/')
+      router.refresh()
+    }
+    if (event === 'SIGNED_IN') {
+      router.refresh()
+    }
+  })
+
   return (
     <header className="flex justify-between py-4 px-14 bg-primary text-primary-foreground items-center">
       <div>Valorant Tracker</div>
@@ -59,6 +74,8 @@ export default function Navbar({ user }: { user: User | null }) {
             <DropdownMenuLabel>Admin</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleItemClick(`/admin/addgames`)}>Add games</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
