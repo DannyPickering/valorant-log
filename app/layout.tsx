@@ -1,6 +1,9 @@
-import Navbar from '@/components/Navbar'
-import createClient from "@/lib/supabase-server"
 import './globals.css'
+
+import Navbar from '@/components/Navbar'
+import SupabaseAuthProvider from '@/components/providers/supabase-auth-provider'
+import SupabaseProvider from '@/components/providers/supabase-provider'
+import { createClient } from "@/lib/supabase-server"
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -16,17 +19,26 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const supabase = createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar user={user} />
-        <main className="container mx-auto flex min-h-screen w-full flex-1">
-          {children}
-        </main>
+        <SupabaseProvider>
+          <SupabaseAuthProvider serverSession={session}>
+            <Navbar />
+            <main className="container mx-auto flex min-h-screen w-full flex-1">
+              {children}
+            </main>
+          </SupabaseAuthProvider>
+        </SupabaseProvider>
       </body>
     </html>
   )
