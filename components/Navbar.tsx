@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import { User } from '@supabase/supabase-js'
 import { useAuth } from '@/components/providers/supabase-auth-provider'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -15,7 +16,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-export default function Navbar() {
+export default function Navbar({ loggedInUser }: { loggedInUser: User | null }) {
   const { user, signInWithDiscord, signOut } = useAuth();
   const router = useRouter();
 
@@ -28,16 +29,16 @@ export default function Navbar() {
     <header className="flex justify-between py-4 px-14 bg-primary text-primary-foreground items-center">
       <div>Valorant Tracker</div>
 
-      {user != null ? (
+      {loggedInUser ? (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger>
             <Avatar>
-              <AvatarImage src={user.avatar_url ? user.avatar_url : undefined} />
+              <AvatarImage src={loggedInUser.user_metadata.avatar_url ? loggedInUser.user_metadata.avatar_url : undefined} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {user.is_admin && (
+            {user != null && user.is_admin && (
               <>
                 <DropdownMenuLabel>Admin</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -45,13 +46,13 @@ export default function Navbar() {
               </>
             )}
             <DropdownMenuLabel className="capitalize">
-              {user.discord_id}
+              {loggedInUser.user_metadata.full_name}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleItemClick(`/dashboard`)}>
               Dashboard
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleItemClick(`/user/${user.discord_id}`)}>
+            <DropdownMenuItem onClick={() => handleItemClick(`/user/${loggedInUser.user_metadata.full_name}`)}>
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleItemClick(`/account`)}>

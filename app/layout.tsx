@@ -33,7 +33,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <SupabaseProvider>
           <SupabaseAuthProvider serverSession={session}>
-            <Navbar />
+            <Navbar loggedInUser={user} />
             <main className="container mx-auto flex min-h-screen w-full flex-1">
               {children}
             </main>

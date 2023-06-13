@@ -81,7 +81,7 @@ export default function SupabaseAuthProvider({
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.access_token !== serverSession?.access_token) {
         router.refresh();
       }
@@ -89,6 +89,8 @@ export default function SupabaseAuthProvider({
       if (event === 'SIGNED_OUT') {
         router.refresh();
         setUser(null);
+      } else if (event === 'SIGNED_IN') {
+        await getUser();
       }
     });
 
