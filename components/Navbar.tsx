@@ -19,7 +19,6 @@ import { useRouter } from 'next/navigation'
 
 
 export default function Navbar({ user }: { user: User | null }) {
-  console.log(user);
   const router = useRouter();
 
   async function handleLoginProvider(provider: Provider) {

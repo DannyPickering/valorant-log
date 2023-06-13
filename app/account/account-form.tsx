@@ -1,18 +1,21 @@
 'use client'
 
-import Avatar from './avatar'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCallback, useEffect, useState } from 'react'
 import { Database } from '@/types/supabase'
 import {
   Session,
   createClientComponentClient,
 } from '@supabase/auth-helpers-nextjs'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { log } from "console"
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
   const [loading, setLoading] = useState(true)
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null)
-  const [discord_id, setDiscordId] = useState<string | null>(null)
+  const [accounts, setAccounts] = useState<string[]>([])
+  const [newAccount, setNewAccount] = useState<string>('')
   const user = session?.user
 
   const getProfile = useCallback(async () => {
@@ -22,7 +25,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       if (user && user.id) {
         let { data, error, status } = await supabase
           .from('profiles')
-          .select(`avatar_url, discord_id, is_admin`)
+          .select(`accounts`)
           .eq('id', user.id)
           .single()
 
@@ -31,9 +34,8 @@ export default function AccountForm({ session }: { session: Session | null }) {
         }
 
         if (data) {
-          console.log(data)
-          setAvatarUrl(data.avatar_url)
-          setDiscordId(data.discord_id)
+          const { accounts } = data as { accounts: string[] | null }
+          setAccounts(accounts || [])
         }
       }
     } catch (error) {
@@ -48,56 +50,60 @@ export default function AccountForm({ session }: { session: Session | null }) {
   }, [user, getProfile])
 
   async function updateProfile({
-    avatar_url,
-    discord_id,
+    accounts,
   }: {
-    avatar_url: string | null
-    discord_id: string | null
+    accounts: string[]
   }) {
     try {
       setLoading(true)
 
       if (user && user.id) {
+        console.log(accounts);
+
         let { error } = await supabase.from('profiles').upsert({
           id: user.id as string,
-          avatar_url,
-          discord_id,
+          accounts: accounts as string[],
           updated_at: new Date().toISOString(),
         })
         if (error) throw error
-        alert('Profile updated!')
       }
     } catch (error) {
       alert('Error updating the data!')
     } finally {
       setLoading(false)
+      setNewAccount('');
     }
   }
 
+  const handleAddAccount = async () => {
+    const updatedAccounts = [...accounts, newAccount]
+    console.log(updatedAccounts);
+
+    setAccounts(updatedAccounts);
+    await updateProfile({ accounts: updatedAccounts });
+
+  }
   return (
     <div className="form-widget">
-      <Avatar
-        uid={user?.id || ''}
-        url={avatar_url}
-        size={150}
-        onUpload={(url) => {
-          setAvatarUrl(url)
-          updateProfile({ avatar_url: url, discord_id: discord_id })
-        }}
-      />
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="text" value={session?.user?.email} disabled />
-      </div>
+      {user && (
+        <Avatar>
+          <AvatarImage src={user.user_metadata.avatar_url} />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      )}
 
       <div>
-        <button
-          className="button primary block"
-          onClick={() => updateProfile({ avatar_url, discord_id })}
-          disabled={loading}
-        >
-          {loading ? 'Loading ...' : 'Update'}
-        </button>
+        {accounts.length > 0 && (
+          <>
+            {accounts.map((account, index) => (
+              <div key={index}>{account}</div>
+            ))}
+          </>
+        )}
+
+        <h2>Add accounts</h2>
+        <Input value={newAccount} onChange={(e) => setNewAccount(e.target.value)} />
+        <Button onClick={handleAddAccount}>Add account</Button>
       </div>
 
       <div>
