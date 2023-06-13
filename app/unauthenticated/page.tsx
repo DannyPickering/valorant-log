@@ -1,6 +1,5 @@
 import React from 'react'
 import createClient from "@/lib/supabase-server"
-import { supabase } from '@supabase/auth-ui-shared'
 import { redirect } from 'next/navigation';
 
 export default async function Unauthenticated() {

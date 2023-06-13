@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Provider, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -17,10 +17,36 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 
+interface UserProfile {
+  is_admin: boolean
+}
 
 export default function Navbar({ user }: { user: User | null }) {
   const router = useRouter();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
+  useEffect(() => {
+    fetchUserProfile()
+  }, [user]);
+
+
+  async function fetchUserProfile() {
+    if (user) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error(error);
+      } else {
+        setUserProfile(data);
+      }
+    } else {
+      setUserProfile(null);
+    }
+  }
   async function handleLoginProvider(provider: Provider) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider,
@@ -51,8 +77,8 @@ export default function Navbar({ user }: { user: User | null }) {
     <header className="flex justify-between py-4 px-14 bg-primary text-primary-foreground items-center">
       <div>Valorant Tracker</div>
 
-      {user ? (
-        <DropdownMenu modal={true}>
+      {userProfile && user ? (
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger>
             <Avatar>
               <AvatarImage src={user.user_metadata.avatar_url} />
@@ -60,19 +86,27 @@ export default function Navbar({ user }: { user: User | null }) {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
+            {userProfile.is_admin && (
+              <>
+                <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleItemClick(`/admin/addgames`)}>Add games</DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuLabel className="capitalize">
               {user.user_metadata.full_name}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleItemClick(`/dashboard`)}>
+              Dashboard
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleItemClick(`/user/${user.user_metadata.full_name}`)}>
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleItemClick(`/account`)}>
               Edit Account
             </DropdownMenuItem>
-            <DropdownMenuLabel>Admin</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleItemClick(`/admin/addgames`)}>Add games</DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
           </DropdownMenuContent>

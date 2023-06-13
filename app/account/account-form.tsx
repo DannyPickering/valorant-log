@@ -9,7 +9,6 @@ import {
 } from '@supabase/auth-helpers-nextjs'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { log } from "console"
 
 export default function AccountForm({ session }: { session: Session | null }) {
   const supabase = createClientComponentClient<Database>()
