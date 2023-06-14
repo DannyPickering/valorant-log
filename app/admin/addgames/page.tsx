@@ -27,8 +27,10 @@ import {
 import { Input } from "@/components/ui/input"
 
 import { AgentsComboBox } from '@/components/agentsComboBox'
-
-import { valorantMaps } from "@/lib/static-valorant-data";
+import { MapsComboBox } from "@/components/mapsComboBox"
+import ProfilesComboBox from "@/components/profilesComboBox"
+import AccountsComboBox from "@/components/accountsComboBox"
+import React from "react"
 
 function stringToBoolean(value: string): boolean {
   if (value === 'true') {
@@ -68,10 +70,15 @@ const formSchema = z.object({
   map: z
     .string(),
   agent: z
+    .string(),
+  played_by: z
+    .string().uuid(),
+  username: z
     .string()
 })
 
 export default function Addgames() {
+  const [showAccounts, setShowAccounts] = React.useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -100,6 +107,9 @@ export default function Addgames() {
   type FormValues = z.infer<typeof formSchema>;
   const handleSelectChange = (fieldName: keyof FormValues, value: string) => {
     form.setValue(fieldName, value)
+    if (fieldName === 'played_by') {
+      setShowAccounts(true)
+    }
   }
 
   return (
@@ -182,24 +192,45 @@ export default function Addgames() {
             control={form.control}
             name="map"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Map</FormLabel>
+              <FormItem className="grid grid-rows-[auto,max-content]">
+                <FormLabel className="self-center">Map</FormLabel>
                 <FormControl>
-                  <Select value={form.getValues().map} onValueChange={(value) => form.setValue('map', value)}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Map" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {valorantMaps.map((map, index) => (
-                        <SelectItem key={index} value={map}>{map}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MapsComboBox onSelectMap={(value) => form.setValue('map', value)} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+        </div>
+
+        <div className="flex">
+          <FormField
+            control={form.control}
+            name="played_by"
+            render={({ field }) => (
+              <FormItem className="grid grid-rows-[auto,max-content]">
+                <FormLabel className="self-center">Played by:</FormLabel>
+                <ProfilesComboBox onSelectProfile={(value) => handleSelectChange('played_by', value.id)} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {showAccounts ? (
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem className="grid grid-rows-[auto,max-content]">
+                  <FormLabel className="self-center">Played by:</FormLabel>
+                  <AccountsComboBox userId={form.getValues().played_by} onSelectAccount={(value) => form.setValue('username', value)} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <div>{form.getValues().played_by}</div>
+          )}
           <FormField
             control={form.control}
             name="agent"

@@ -18,20 +18,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { valorantAgents } from "@/lib/static-valorant-data"
+import { valorantMaps } from "@/lib/static-valorant-data"
 
-interface AgentsComboBoxProps {
-  onSelectAgent: (selectedAgent: string) => void;
+interface MapsComboBoxProps {
+  onSelectMap: (selectedMap: string) => void;
 }
 
-export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
+export function MapsComboBox({ onSelectMap }: MapsComboBoxProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  const handleSelectAgent = (agent: string) => {
-    setValue(agent);
+  const handleSelectMap = (map: string) => {
+    setValue(map);
     setOpen(false);
-    onSelectAgent(agent);
+    onSelectMap(map);
   }
 
   return (
@@ -44,28 +44,28 @@ export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
           className="w-[200px] justify-between"
         >
           {value
-            ? valorantAgents.find((agent) => agent === value)
-            : "Select an Agent"}
+            ? valorantMaps.find((map) => map === value)
+            : "Select a map"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search Agents..." />
-          <CommandEmpty>No agent found.</CommandEmpty>
+          <CommandInput placeholder="Search maps..." />
+          <CommandEmpty>No map found.</CommandEmpty>
           <CommandGroup>
-            {valorantAgents.map((agent) => (
+            {valorantMaps.map((map) => (
               <CommandItem
-                key={agent}
-                onSelect={() => handleSelectAgent(agent)}
+                key={map}
+                onSelect={() => handleSelectMap(map)}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === agent ? "opacity-100" : "opacity-0"
+                    value === map ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {agent}
+                {map}
               </CommandItem>
             ))}
           </CommandGroup>
