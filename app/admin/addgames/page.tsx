@@ -15,7 +15,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 import { Input } from "@/components/ui/input"
+
+import { AgentsComboBox } from '@/components/agentsComboBox'
+
+import { valorantMaps } from "@/lib/static-valorant-data";
+
+function stringToBoolean(value: string): boolean {
+  if (value === 'true') {
+    return true;
+  } else if (value === 'false') {
+    return false;
+  } else {
+    throw new Error('Invalid input. Expected "true" or "false".');
+  }
+}
 
 const formSchema = z.object({
   episode: z
@@ -37,15 +60,26 @@ const formSchema = z.object({
     .refine((value) => value >= 1, {
       message: 'Act must be great than 0.',
       path: ['act']
-    })
+    }),
+  queue: z
+    .enum(['comp', 'unrated']),
+  won_game: z
+    .string(),
+  map: z
+    .string(),
+  agent: z
+    .string()
 })
 
 export default function Addgames() {
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       episode: 6,
-      act: 3
+      act: 3,
+      queue: 'comp',
+      won_game: 'false'
     }
   })
 
@@ -53,39 +87,131 @@ export default function Addgames() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Send to database 
-    console.log(values);
 
+    const { won_game, ...restValues } = values;
+
+    const parsedValues = {
+      ...restValues,
+      won_game: won_game === 'true' // convert string back to boolean
+    }
+    console.log(parsedValues);
+  }
+
+  type FormValues = z.infer<typeof formSchema>;
+  const handleSelectChange = (fieldName: keyof FormValues, value: string) => {
+    form.setValue(fieldName, value)
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="episode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Episode</FormLabel>
-              <FormControl>
-                <Input {...register('episode')} {...field} type="number" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="act"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Act</FormLabel>
-              <FormControl>
-                <Input {...field} type="number" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <h2>Constants for each game</h2>
+        <p>These values will be used for all accounts you add.</p>
+        <div className="flex">
+          <FormField
+            control={form.control}
+            name="episode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Episode</FormLabel>
+                <FormControl>
+                  <Input {...register('episode')} {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="act"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Act</FormLabel>
+                <FormControl>
+                  <Input {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="queue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Queue</FormLabel>
+                <FormControl>
+                  <Select defaultValue={form.getValues().queue} value={form.getValues().queue} onValueChange={(value) => handleSelectChange('queue', value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Queue" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="comp">Comp</SelectItem>
+                      <SelectItem value="unrated">Unrated</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="won_game"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Won/Lost</FormLabel>
+                <FormControl>
+                  <Select value={form.getValues().won_game} onValueChange={(value) => form.setValue('won_game', value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Won/Lost" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Won</SelectItem>
+                      <SelectItem value="false">Lost</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="map"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Map</FormLabel>
+                <FormControl>
+                  <Select value={form.getValues().map} onValueChange={(value) => form.setValue('map', value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Map" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {valorantMaps.map((map, index) => (
+                        <SelectItem key={index} value={map}>{map}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="agent"
+            render={({ field }) => (
+              <FormItem className="grid grid-rows-[auto,max-content]">
+                <FormLabel className="self-center">Agent</FormLabel>
+                <AgentsComboBox onSelectAgent={(value) => form.setValue('agent', value)} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <Button type="submit">Add game</Button>
       </form>
     </Form>
