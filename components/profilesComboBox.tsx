@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import getAllProfiles from "@/lib/getAllProfiles";
+import { getAllProfiles } from "@/lib/supabase-queries";
 import { Profile } from '@/types/collections';
 
 interface ProfilesComboBoxProps {

@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import getAllAccountsByUser from "@/lib/getAllAccountsByUser";
+import { getAllAccountsByUser } from "@/lib/supabase-queries";
 
 interface AccountsComboboxProps {
   onSelectAccount: (selectedAccount: string) => void;
