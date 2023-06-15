@@ -5,6 +5,7 @@ import SupabaseAuthProvider from '@/components/providers/supabase-auth-provider'
 import SupabaseProvider from '@/components/providers/supabase-provider'
 import { createClient } from "@/lib/supabase-server"
 import { Inter } from 'next/font/google'
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -39,6 +40,8 @@ export default async function RootLayout({
             </main>
           </SupabaseAuthProvider>
         </SupabaseProvider>
+        <Toaster />
+
       </body>
     </html>
   )

@@ -42,7 +42,8 @@ export default function Navbar({ loggedInUser }: { loggedInUser: User | null }) 
               <>
                 <DropdownMenuLabel>Admin</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleItemClick(`/admin/addgames`)}>Add games</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleItemClick(`/admin/add-games`)}>Add games</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleItemClick(`/admin/manage-maps`)}>Manage Maps</DropdownMenuItem>
               </>
             )}
             <DropdownMenuLabel className="capitalize">

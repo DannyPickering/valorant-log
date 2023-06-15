@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase-client';
-import { PostgrestError } from '@supabase/supabase-js';
 
 export async function getAllProfiles() {
   try {
