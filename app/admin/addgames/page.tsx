@@ -32,16 +32,6 @@ import ProfilesComboBox from "@/components/profilesComboBox"
 import AccountsComboBox from "@/components/accountsComboBox"
 import React from "react"
 
-function stringToBoolean(value: string): boolean {
-  if (value === 'true') {
-    return true;
-  } else if (value === 'false') {
-    return false;
-  } else {
-    throw new Error('Invalid input. Expected "true" or "false".');
-  }
-}
-
 const formSchema = z.object({
   episode: z
     .coerce.number()
@@ -222,7 +212,7 @@ export default function Addgames() {
               name="username"
               render={({ field }) => (
                 <FormItem className="grid grid-rows-[auto,max-content]">
-                  <FormLabel className="self-center">Played by:</FormLabel>
+                  <FormLabel className="self-center">Valorant account:</FormLabel>
                   <AccountsComboBox userId={form.getValues().played_by} onSelectAccount={(value) => form.setValue('username', value)} />
                   <FormMessage />
                 </FormItem>

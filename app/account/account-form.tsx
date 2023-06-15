@@ -21,24 +21,25 @@ export default function AccountForm({ session }: { session: Session | null }) {
     try {
       setLoading(true)
 
-      if (user && user.id) {
+      if (user?.id) {
         let { data, error, status } = await supabase
-          .from('profiles')
-          .select(`accounts`)
-          .eq('id', user.id)
-          .single()
+          .from('valorant_accounts')
+          .select(`name`)
+          .eq('profile_id', user.id)
 
         if (error && status !== 406) {
           throw error
         }
 
         if (data) {
-          const { accounts } = data as { accounts: string[] | null }
-          setAccounts(accounts || [])
+          const filteredAccounts = data
+            .map(obj => obj.name)
+            .filter(name => name !== null) as string[];
+          setAccounts(filteredAccounts)
         }
       }
-    } catch (error) {
-      alert('Error loading user data!')
+    } catch (error: any) {
+      alert(error.message)
     } finally {
       setLoading(false)
     }
@@ -48,38 +49,30 @@ export default function AccountForm({ session }: { session: Session | null }) {
     getProfile()
   }, [user, getProfile])
 
-  async function updateProfile({
-    accounts,
-  }: {
-    accounts: string[]
-  }) {
+  async function updateProfile(accountName: string) {
     try {
       setLoading(true)
 
-      if (user && user.id) {
+      if (user?.id) {
         console.log(accounts);
 
-        let { error } = await supabase.from('profiles').upsert({
-          id: user.id as string,
-          accounts: accounts as string[],
-          updated_at: new Date().toISOString(),
+        let { error } = await supabase.from('valorant_accounts').insert({
+          profile_id: user.id as string,
+          name: accountName as string,
         })
         if (error) throw error
       }
-    } catch (error) {
-      alert('Error updating the data!')
+    } catch (error: any) {
+      alert(error.message)
     } finally {
       setLoading(false)
+      getProfile()
       setNewAccount('');
     }
   }
 
   const handleAddAccount = async () => {
-    const updatedAccounts = [...accounts, newAccount]
-    console.log(updatedAccounts);
-
-    setAccounts(updatedAccounts);
-    await updateProfile({ accounts: updatedAccounts });
+    await updateProfile(newAccount);
 
   }
   return (
