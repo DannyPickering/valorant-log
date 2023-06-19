@@ -35,7 +35,7 @@ export default async function RootLayout({
         <SupabaseProvider>
           <SupabaseAuthProvider serverSession={session}>
             <Navbar loggedInUser={user} />
-            <main className="container mx-auto flex min-h-screen w-full flex-1">
+            <main className="container mx-auto flex min-h-screen w-full flex-col">
               {children}
             </main>
           </SupabaseAuthProvider>

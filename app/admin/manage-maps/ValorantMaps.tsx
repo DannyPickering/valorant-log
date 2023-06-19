@@ -29,6 +29,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import MapsSkeleton from './MapsSkeleton';
+import Typography from '@/components/Typography';
 
 export default function ValorantMaps() {
   const supabase = createClient();
@@ -142,51 +143,55 @@ export default function ValorantMaps() {
       {loading ? (
         <MapsSkeleton />
       ) : valorantMaps.length > 0 ? (
-        valorantMaps
-          .sort((a, b) => {
-            const nameA = a.name ?? '';
-            const nameB = b.name ?? '';
-            return nameA.localeCompare(nameB);
-          })
-          .map((map: ValorantMap) => (
-            <Card key={map.id} className="mb-8">
-              <CardHeader>
-                <CardTitle>{map.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-between">
-                <p>Map is in active rotation:</p>
-                <Switch
-                  checked={map.is_active ?? false}
-                  onCheckedChange={(checkedState) => updateMapStatus(checkedState, map.id)}
-                />
-              </CardContent>
-              <CardFooter>
-                <Dialog open={deleteMapDialogOpen} onOpenChange={setDeleteMapDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="destructive" onClick={() => handleOpenDeleteMapDialog(map)}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Map
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Delete {map.name}</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to permamently remove {map.name}? Doing so may remove games played on this map. Only delete maps you just created with typos.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button variant="ghost" onClick={handleCloseDeleteMapDialog}>Cancel</Button>
-                      <Button variant="destructive" onClick={handleConfirmDeleteMap}>
+        <>
+          <Typography element="h2" as="h2">Valorant maps</Typography>
+          <Typography element="h3" as="h6">{valorantMaps.length} maps total | {valorantMaps.filter((map) => map.is_active).length} active | {valorantMaps.filter((map) => !map.is_active).length} inactive</Typography>
+          {valorantMaps
+            .sort((a, b) => {
+              const nameA = a.name ?? '';
+              const nameB = b.name ?? '';
+              return nameA.localeCompare(nameB);
+            })
+            .map((map: ValorantMap) => (
+              <Card key={map.id} className="mb-8">
+                <CardHeader>
+                  <CardTitle>{map.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-between">
+                  <p>Map is in active rotation:</p>
+                  <Switch
+                    checked={map.is_active ?? false}
+                    onCheckedChange={(checkedState) => updateMapStatus(checkedState, map.id)}
+                  />
+                </CardContent>
+                <CardFooter>
+                  <Dialog open={deleteMapDialogOpen} onOpenChange={setDeleteMapDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" onClick={() => handleOpenDeleteMapDialog(map)}>
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                        Delete Map
                       </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-          ))
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Delete {map.name}</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to permamently remove {map.name}? Doing so may remove games played on this map. Only delete maps you just created with typos.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button variant="ghost" onClick={handleCloseDeleteMapDialog}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleConfirmDeleteMap}>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </CardFooter>
+              </Card>
+            ))}
+        </>
       ) : (
         <div>
           <p>No maps were found. You can add some below.</p>

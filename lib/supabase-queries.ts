@@ -70,3 +70,20 @@ export async function updateMapById(id: number, is_active: boolean) {
     throw new Error((error as Error).message);
   }
 }
+
+export async function getAllAgents() {
+  try {
+    const supabase = createClient();
+    let { data, error } = await supabase
+      .from('valorant_agents')
+      .select('*');
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}

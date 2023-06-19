@@ -1,11 +1,12 @@
 import React from 'react'
-import AddMaps from './add-maps'
+import AddMaps from './AddMaps'
 import ValorantMaps from './ValorantMaps'
+import Typography from '@/components/Typography'
 
-export default function page() {
+export default function ManageMaps() {
   return (
-    <div className="py-8 flex flex-col w-full">
-      <h1 className="mb-10 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Manage Maps</h1>
+    <div className="py-8">
+      <Typography element="h1" as="h1">Manage Maps</Typography>
       <ValorantMaps />
       <AddMaps />
     </div>

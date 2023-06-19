@@ -29,6 +29,7 @@ import {
 import SquareLoader from '@/components/SquareLoader'
 import SuccessMark from '@/components/SuccessMark'
 import { Plus, Loader2 } from 'lucide-react'
+import Typography from '@/components/Typography'
 
 type NewValorantMap = Omit<ValorantMap, 'created_at' | 'id'>;
 
@@ -51,8 +52,6 @@ export default function addMaps() {
     dismiss: () => void;
     update: (props: ToasterToast) => void;
   } | null>(null);
-
-
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -121,7 +120,7 @@ export default function addMaps() {
                 )}
               </>
             ),
-            action: <p></p>
+            action: <SuccessMark />
           })
       }
 
@@ -154,7 +153,7 @@ export default function addMaps() {
 
   return (
     <div>
-      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 mb-6">Add Maps</h2>
+      <Typography element="h2" as="h2">Add Maps</Typography>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">

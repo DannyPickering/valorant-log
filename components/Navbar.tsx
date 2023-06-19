@@ -48,6 +48,9 @@ export default function Navbar({ loggedInUser }: { loggedInUser: User | null }) 
                 <DropdownMenuItem asChild>
                   <Link href="/admin/manage-maps">Manage Maps</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/manage-agents">Manage Agents</Link>
+                </DropdownMenuItem>
               </>
             )}
             <DropdownMenuLabel className="capitalize">
