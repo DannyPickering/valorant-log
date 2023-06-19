@@ -26,10 +26,10 @@ import {
 
 import { Input } from "@/components/ui/input"
 
-import { AgentsComboBox } from '@/components/agentsComboBox'
-import { MapsComboBox } from "@/components/mapsComboBox"
-import ProfilesComboBox from "@/components/profilesComboBox"
-import AccountsComboBox from "@/components/accountsComboBox"
+import { AgentsComboBox } from '@/components/AgentsComboBox'
+import { MapsComboBox } from "@/components/MapsComboBox"
+import ProfilesComboBox from "@/components/ProfilesComboBox"
+import AccountsComboBox from "@/components/AccountsComboBox"
 import React from "react"
 
 const formSchema = z.object({

@@ -14,6 +14,7 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
+import type { ToasterToast } from "@/components/ui/use-toast"
 import { Switch } from "@/components/ui/switch"
 
 import {
@@ -25,6 +26,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
+import SquareLoader from '@/components/SquareLoader'
+import SuccessMark from '@/components/SuccessMark'
 
 type NewValorantMap = Omit<ValorantMap, 'created_at' | 'id'>;
 
@@ -42,6 +46,13 @@ const formSchema = z.object({
 export default function addMaps() {
   const supabase = createClient();
   const [loading, setLoading] = useState<boolean>(false);
+  const myToastRef = React.useRef<{
+    id: string;
+    dismiss: () => void;
+    update: (props: ToasterToast) => void;
+  } | null>(null);
+
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,7 +70,7 @@ export default function addMaps() {
     try {
       setLoading(true);
 
-      toast({
+      myToastRef.current = toast({
         title: `Attempting to add Map: ${mapData.name}`,
         description: (
           <>
@@ -70,6 +81,7 @@ export default function addMaps() {
             )}
           </>
         ),
+        action: <SquareLoader />
       })
 
       console.log(mapData);
@@ -80,36 +92,70 @@ export default function addMaps() {
       })
       if (error) throw error
 
-      toast({
-        title: `Added Map: ${mapData.name}`,
-        description: (
-          <>
-            {mapData.is_active ? (
-              <p>Map was set to active.</p>
-            ) : (
-              <p>Map was set to inactive.</p>
-            )}
-          </>
-        ),
-      })
+      if (myToastRef.current) {
+        myToastRef.current.update(
+          {
+            id: myToastRef.current.id,
+            title: `Added Map: ${mapData.name}`,
+            description: (
+              <>
+                {mapData.is_active ? (
+                  <p>Map was set to active.</p>
+                ) : (
+                  <p>Map was set to inactive.</p>
+                )}
+              </>
+            ),
+            action: <SuccessMark />
+          })
+      } else {
+        toast(
+          {
+            title: `Added Map: ${mapData.name}`,
+            description: (
+              <>
+                {mapData.is_active ? (
+                  <p>Map was set to active.</p>
+                ) : (
+                  <p>Map was set to inactive.</p>
+                )}
+              </>
+            ),
+            action: <p></p>
+          })
+      }
 
     } catch (error: any) {
-      toast({
-        title: 'Error:',
-        variant: 'destructive',
-        description: (
-          <p>{error.message}</p>
-        ),
-      });
+      if (myToastRef.current) {
+        myToastRef.current.update({
+          id: myToastRef.current.id,
+          title: 'Error:',
+          variant: 'destructive',
+          description: (
+            <p>{error.message}</p>
+          ),
+          action: <></>
+        });
+      } else {
+        toast({
+          title: 'Error:',
+          variant: 'destructive',
+          description: (
+            <p>{error.message}</p>
+          ),
+          action: <></>
+        });
+      }
     } finally {
       setLoading(false);
-
+      form.reset();
     }
   }
 
   return (
     <div>
-      <h2>Add Maps</h2>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 mb-6">Add Maps</h2>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
           <FormField
