@@ -27,6 +27,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import Typography from '@/components/Typography';
+import AgentsSkeleton from './AgentsSkeleton';
 
 export default function ValorantAgents() {
   const supabase = createClient();
@@ -109,8 +110,7 @@ export default function ValorantAgents() {
   return (
     <div className="mb-8">
       {loading ? (
-        // <MapsSkeleton />
-        <p>Loading...</p>
+        <AgentsSkeleton />
       ) : valorantAgents.length > 0 ? (
         <>
           <Typography element="h2" as="h2">Agents</Typography>
