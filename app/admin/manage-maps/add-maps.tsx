@@ -1,7 +1,6 @@
 "use client"
 
 import { ValorantMap } from '@/types/collections'
-import { Database } from '@/types/supabase'
 
 import React, { useState } from 'react'
 
@@ -29,6 +28,7 @@ import {
 
 import SquareLoader from '@/components/SquareLoader'
 import SuccessMark from '@/components/SuccessMark'
+import { Plus, Loader2 } from 'lucide-react'
 
 type NewValorantMap = Omit<ValorantMap, 'created_at' | 'id'>;
 
@@ -194,7 +194,14 @@ export default function addMaps() {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={loading}>Add map</Button>
+          <Button type="submit" disabled={loading}>
+            {!loading ? (
+              <Plus className="mr-2 h-4 w-4" />
+            ) : (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Add map
+          </Button>
         </form>
       </Form>
     </div>

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { ValorantMap } from '@/types/collections';
-import { RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 import { getAllMaps, updateMapById } from '@/lib/supabase-queries';
 import { createClient } from '@/lib/supabase-client';
 
@@ -11,7 +10,6 @@ import { Trash2 } from 'lucide-react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -30,16 +28,18 @@ import {
 
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import MapsSkeleton from './MapsSkeleton';
 
 export default function ValorantMaps() {
   const supabase = createClient();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [valorantMaps, setValorantMaps] = useState<ValorantMap[]>([]);
   const [deleteMapDialogOpen, setDeleteMapDialogOpen] = useState<boolean>(false);
   const [mapToDelete, setMapToDelete] = useState<ValorantMap | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+
       try {
         setLoading(true);
         const maps = await getAllMaps();
@@ -78,7 +78,6 @@ export default function ValorantMaps() {
   }, []);
 
   async function updateMapStatus(checkedState: boolean, mapId: number) {
-
     try {
       await updateMapById(mapId, checkedState)
     } catch (error) {
@@ -120,7 +119,6 @@ export default function ValorantMaps() {
   async function handleConfirmDeleteMap() {
     if (mapToDelete) {
       try {
-
         const { data, error } = await supabase
           .from('valorant_maps')
           .delete()
@@ -142,7 +140,7 @@ export default function ValorantMaps() {
   return (
     <div className="mb-8">
       {loading ? (
-        <div>Loading maps...</div>
+        <MapsSkeleton />
       ) : valorantMaps.length > 0 ? (
         valorantMaps
           .sort((a, b) => {
@@ -151,7 +149,7 @@ export default function ValorantMaps() {
             return nameA.localeCompare(nameB);
           })
           .map((map: ValorantMap) => (
-            <Card key={map.id}>
+            <Card key={map.id} className="mb-8">
               <CardHeader>
                 <CardTitle>{map.name}</CardTitle>
               </CardHeader>
@@ -163,7 +161,7 @@ export default function ValorantMaps() {
                 />
               </CardContent>
               <CardFooter>
-                <Dialog open={deleteMapDialogOpen}>
+                <Dialog open={deleteMapDialogOpen} onOpenChange={setDeleteMapDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="destructive" onClick={() => handleOpenDeleteMapDialog(map)}>
                       <Trash2 className="mr-2 h-4 w-4" />
