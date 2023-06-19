@@ -1,7 +1,6 @@
 import React from 'react'
 import AddMaps from './add-maps'
 import ValorantMaps from './ValorantMaps'
-import MapsSkeleton from './MapsSkeleton'
 
 export default function page() {
   return (
