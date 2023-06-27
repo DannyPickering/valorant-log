@@ -18,13 +18,53 @@ import {
 
 import { X } from 'lucide-react';
 import { cn } from "@/lib/utils"
+import GameConstantsForm from "./GameConstantsForm";
+import Typography from "@/components/Typography";
 
 const formSchema = z.object({
+  episode: z
+    .coerce.number()
+    .refine((value) => String(value).length >= 1, {
+      message: 'Episode must be at least one digit.',
+      path: ['episode']
+    })
+    .refine((value) => value >= 1, {
+      message: 'Episode must be great than 0.',
+      path: ['episode']
+    }),
+  act: z
+    .coerce.number()
+    .refine((value) => String(value).length >= 1, {
+      message: 'Act must be at least one digit.',
+      path: ['act']
+    })
+    .refine((value) => value >= 1, {
+      message: 'Act must be great than 0.',
+      path: ['act']
+    }),
+  queue: z
+    .enum(['comp', 'unrated']),
+  won_game: z
+    .boolean(),
+  map: z
+    .number(),
   players: z.array(
     z.object({
-      agent: z.string().nullable(),
-      played_by: z.string().uuid().nullable(),
-      username: z.number().nullable(),
+      played_by: z.string().uuid().nullable().refine((value) => value !== null, {
+        message: "Played by is required",
+      }),
+      valorant_account_id: z.number().nullable().refine((value) => value !== null, {
+        message: "Valorant account is required",
+      }),
+      valorant_agent_id: z.number().nullable().refine((value) => value !== null, {
+        message: "Agent is required",
+      }),
+      combat_score: z.coerce.number().nullable().refine((value) => value !== null, {
+        message: "Combat score is required",
+      }),
+      first_blood_count: z.coerce.number().nullable().refine((value) => value !== null, {
+        message: "First blood count is required",
+      }),
     })
   ),
 });
@@ -35,24 +75,30 @@ export default function AddGames() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      episode: 1,
+      act: 1,
+      queue: 'comp',
+      won_game: false,
       players: [{
-        agent: null,
         played_by: null,
-        username: null
+        valorant_account_id: null,
+        valorant_agent_id: null,
+        combat_score: null,
+        first_blood_count: null
       }]
     },
   });
 
-  // const [playerForms, setPlayerForms] = useState<FormValues['players']>([]);
-
   const handleAddPlayer = () => {
-    // setPlayerForms((prevPlayerForms) => [
-    //   ...prevPlayerForms,
-    //   { agent: null, played_by: null, username: null },
-    // ]);
     form.setValue('players', [
       ...form.getValues().players,
-      { agent: null, played_by: null, username: null },
+      {
+        played_by: null,
+        valorant_agent_id: null,
+        valorant_account_id: null,
+        combat_score: null,
+        first_blood_count: null
+      },
     ]);
   };
 
@@ -72,7 +118,6 @@ export default function AddGames() {
     );
   };
 
-
   useEffect(() => {
     console.log('Form Values:', form.getValues());
   }, [form]);
@@ -83,8 +128,11 @@ export default function AddGames() {
     <FormProvider {...form} >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
+          <GameConstantsForm />
+
+          <Typography element="h2" as="h2">Players</Typography>
           {watch.players?.map((_form, index: number) => (
-            <div className="flex align-middle" key={index}>
+            <div className="flex my-10" key={index}>
               <PlayerForm key={index} index={index} />
               {watch.players?.length && watch.players.length >= 2 && (
                 <Button type="button" className={cn('h-auto rounded-none')} variant="destructive" onClick={() => handleRemovePlayer(index)}>
@@ -95,7 +143,7 @@ export default function AddGames() {
           ))}
         </form>
 
-        <Button type="button" onClick={handleAddPlayer}>Add Player</Button>
+        <Button className="mt-4 mb-8" type="button" onClick={handleAddPlayer}>Add Player</Button>
 
         <Button onClick={handleAddGames}>
           Add games
@@ -104,4 +152,3 @@ export default function AddGames() {
     </FormProvider>
   );
 }
-

@@ -6,10 +6,13 @@ import { FormValues } from './page'
 
 import {
   FormField,
+  FormControl,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
+import { Input } from '@/components/ui/input'
 
 
 import { AgentsComboBox } from '@/components/AgentsComboBox'
@@ -32,15 +35,14 @@ const PlayerForm = ({ index }: { index: number }) => {
   const handlePlayedByChange = (value: { id: string }) => {
     setPlayedBy(value.id)
     setValue(`players.${index}.played_by`, value.id);
-    console.log('Form Values:', getValues()); // Log form values here
   };
 
   const handleAccountChange = (value: ValorantAccount) => {
-    setValue(`players.${index}.username`, value.id)
+    setValue(`players.${index}.valorant_account_id`, value.id)
   };
 
   const handleAgentChange = (value: ValorantAgent) => {
-    setValue(`players.${index}.agent`, value.id.toString());
+    setValue(`players.${index}.valorant_agent_id`, value.id);
   };
 
   return (
@@ -59,7 +61,7 @@ const PlayerForm = ({ index }: { index: number }) => {
 
       <FormField
         control={control}
-        name={`players.${index}.username`}
+        name={`players.${index}.valorant_account_id`}
         render={({ field }) => (
           <FormItem className="grid grid-rows-[auto,max-content]">
             <FormLabel className="self-center">Valorant account:</FormLabel>
@@ -71,11 +73,39 @@ const PlayerForm = ({ index }: { index: number }) => {
 
       <FormField
         control={control}
-        name={`players.${index}.agent`}
+        name={`players.${index}.valorant_agent_id`}
         render={({ field }) => (
           <FormItem className="grid grid-rows-[auto,max-content]">
             <FormLabel className="self-center">Agent</FormLabel>
             <AgentsComboBox onSelectAgent={handleAgentChange} />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name={`players.${index}.combat_score`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Combat Score</FormLabel>
+            <FormControl>
+              <Input {...field} type="number" value={field.value?.toString() || ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name={`players.${index}.first_blood_count`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>First Blood Count</FormLabel>
+            <FormControl>
+              <Input {...field} type="number" value={field.value?.toString() || ''} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
