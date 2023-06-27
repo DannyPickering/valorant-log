@@ -17,16 +17,17 @@ import {
 } from "@/components/ui/popover";
 
 import { getAllAccountsByUser } from "@/lib/supabase-queries";
+import { ValorantAccount } from "@/types/collections";
 
 interface AccountsComboboxProps {
-  onSelectAccount: (selectedAccount: string) => void;
+  onSelectAccount: (selectedAccount: ValorantAccount) => void;
   userId: string
 }
 
 function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>('');
-  const [accounts, setAccounts] = React.useState<string[]>([]);
+  const [value, setValue] = React.useState<ValorantAccount>();
+  const [accounts, setAccounts] = React.useState<ValorantAccount[]>([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -38,9 +39,9 @@ function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
       }
     };
     fetchData();
-  }, []);
+  }, [userId]);
 
-  const handleSelectAccount = (account: string) => {
+  const handleSelectAccount = (account: ValorantAccount) => {
     setValue(account);
     setOpen(false);
     onSelectAccount(account);
@@ -56,8 +57,8 @@ function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
           className="w-[200px] justify-between"
         >
           {value ? (
-            accounts.find((account) => account === value) ? (
-              <span className="capitalize">{value}</span>
+            accounts.find((account) => account.name === value.name) ? (
+              <span className="capitalize">{value.name}</span>
             ) : (
               <span>Select an account</span>
             )
@@ -72,10 +73,10 @@ function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
           <CommandInput placeholder="Search users..." />
           <CommandEmpty>No user found.</CommandEmpty>
           <CommandGroup>
-            {accounts.map((account: string) => (
+            {accounts.map((account: ValorantAccount) => (
               <CommandItem
                 className="capitalize"
-                key={account}
+                key={account.id}
                 onSelect={() => handleSelectAccount(account)}
               >
                 <Check
@@ -84,7 +85,7 @@ function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
                     value === account ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {account}
+                {account.name}
               </CommandItem>
             ))}
           </CommandGroup>

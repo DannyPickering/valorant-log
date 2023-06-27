@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -18,17 +18,34 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { valorantMaps } from "@/lib/static-valorant-data"
+import { getAllMaps, getCurrentSeason } from "@/lib/supabase-queries"
+import { ValorantMap } from '@/types/collections';
 
 interface MapsComboBoxProps {
-  onSelectMap: (selectedMap: string) => void;
+  onSelectMap: (selectedMap: ValorantMap) => void;
 }
 
 export function MapsComboBox({ onSelectMap }: MapsComboBoxProps) {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState<ValorantMap | null>(null);
+  const [valorantMaps, setValorantMaps] = useState<ValorantMap[]>([]);
 
-  const handleSelectMap = (map: string) => {
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const mapsData = await getAllMaps();
+        if (mapsData != null) {
+          setValorantMaps(mapsData);
+        }
+      } catch (error) {
+        console.error('Error fetching maps: ', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleSelectMap = (map: ValorantMap) => {
     setValue(map);
     setOpen(false);
     onSelectMap(map);
@@ -44,7 +61,7 @@ export function MapsComboBox({ onSelectMap }: MapsComboBoxProps) {
           className="w-[200px] justify-between"
         >
           {value
-            ? valorantMaps.find((map) => map === value)
+            ? valorantMaps.find((map) => map.id === value.id)?.name || "Select a map"
             : "Select a map"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -56,16 +73,16 @@ export function MapsComboBox({ onSelectMap }: MapsComboBoxProps) {
           <CommandGroup>
             {valorantMaps.map((map) => (
               <CommandItem
-                key={map}
+                key={map.id}
                 onSelect={() => handleSelectMap(map)}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === map ? "opacity-100" : "opacity-0"
+                    value && value.id === map.id ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {map}
+                {map.name}
               </CommandItem>
             ))}
           </CommandGroup>

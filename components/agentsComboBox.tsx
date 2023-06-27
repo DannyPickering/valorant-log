@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -18,17 +18,34 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { valorantAgents } from "@/lib/static-valorant-data"
+import { ValorantAgent } from "@/types/collections"
+import { getAllAgents } from "@/lib/supabase-queries"
 
 interface AgentsComboBoxProps {
-  onSelectAgent: (selectedAgent: string) => void;
+  onSelectAgent: (selectedAgent: ValorantAgent) => void;
 }
 
 export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState<ValorantAgent>();
+  const [valorantAgents, setValorantAgents] = useState<ValorantAgent[]>([]);
 
-  const handleSelectAgent = (agent: string) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const agentsData = await getAllAgents();
+        if (agentsData != null) {
+          setValorantAgents(agentsData);
+        }
+      } catch (error) {
+        console.error('Error fetching agents: ', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+
+  const handleSelectAgent = (agent: ValorantAgent) => {
     setValue(agent);
     setOpen(false);
     onSelectAgent(agent);
@@ -44,7 +61,7 @@ export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
           className="w-[200px] justify-between"
         >
           {value
-            ? valorantAgents.find((agent) => agent === value)
+            ? value.name
             : "Select an Agent"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -56,7 +73,7 @@ export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
           <CommandGroup>
             {valorantAgents.map((agent) => (
               <CommandItem
-                key={agent}
+                key={agent.id}
                 onSelect={() => handleSelectAgent(agent)}
               >
                 <Check
@@ -65,7 +82,7 @@ export function AgentsComboBox({ onSelectAgent }: AgentsComboBoxProps) {
                     value === agent ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {agent}
+                {agent.name}
               </CommandItem>
             ))}
           </CommandGroup>

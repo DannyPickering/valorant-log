@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-client';
+import { ValorantAccount } from '@/types/collections';
 
 export async function getAllProfiles() {
   try {
@@ -15,20 +16,20 @@ export async function getAllProfiles() {
   }
 }
 
-export async function getAllAccountsByUser(userId: string): Promise<string[]> {
+export async function getAllAccountsByUser(userId: string): Promise<ValorantAccount[]> {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('valorant_accounts')
-      .select('name')
+      .select('*')
       .eq('profile_id', userId);
 
     if (error) {
       throw new Error(error.message);
     }
+    console.log('accounts found: ', data);
 
-    const accountsArray = data.map(obj => obj.name || '')
-    return accountsArray
+    return data
 
   } catch (error) {
     throw new Error((error as Error).message);
@@ -83,6 +84,25 @@ export async function getAllAgents() {
     }
 
     return data;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}
+
+export async function getCurrentSeason() {
+  try {
+    const supabase = createClient();
+    let { data, error } = await supabase
+      .from('valorant_seasons')
+      .select('*')
+      .eq('is_current', true)
+      .limit(1);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data && data.length > 0 ? data[0] : null;
   } catch (error) {
     throw new Error((error as Error).message);
   }
