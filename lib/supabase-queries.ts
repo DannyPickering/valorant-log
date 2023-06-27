@@ -27,7 +27,6 @@ export async function getAllAccountsByUser(userId: string): Promise<ValorantAcco
     if (error) {
       throw new Error(error.message);
     }
-    console.log('accounts found: ', data);
 
     return data
 

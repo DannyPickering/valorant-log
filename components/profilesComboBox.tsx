@@ -41,8 +41,6 @@ function ProfilesComboBox({ onSelectProfile }: ProfilesComboBoxProps) {
   }, []);
 
   const handleSelectProfile = (profile: Profile) => {
-    console.log(profile);
-
     setValue(profile);
     setOpen(false);
     onSelectProfile(profile);

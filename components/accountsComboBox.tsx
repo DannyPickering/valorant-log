@@ -21,25 +21,28 @@ import { ValorantAccount } from "@/types/collections";
 
 interface AccountsComboboxProps {
   onSelectAccount: (selectedAccount: ValorantAccount) => void;
-  userId: string
+  userId: string;
+  disabled?: boolean;
 }
 
-function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
+function AccountsCombobox({ onSelectAccount, userId, disabled }: AccountsComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<ValorantAccount>();
   const [accounts, setAccounts] = React.useState<ValorantAccount[]>([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
-      try {
-        const accountData = await getAllAccountsByUser(userId);
-        setAccounts(accountData);
-      } catch (error) {
-        console.error('Error fetching profiles: ', error);
+      if (userId && !disabled) {
+        try {
+          const accountData = await getAllAccountsByUser(userId);
+          setAccounts(accountData);
+        } catch (error) {
+          console.error('Error fetching profiles: ', error);
+        }
       }
     };
     fetchData();
-  }, [userId]);
+  }, [disabled, userId]);
 
   const handleSelectAccount = (account: ValorantAccount) => {
     setValue(account);
@@ -54,7 +57,8 @@ function AccountsCombobox({ onSelectAccount, userId }: AccountsComboboxProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          disabled={disabled}
+          className="w-[200px] justify-between disabled:opacity-50 disabled:pointer-events-none"
         >
           {value ? (
             accounts.find((account) => account.name === value.name) ? (
